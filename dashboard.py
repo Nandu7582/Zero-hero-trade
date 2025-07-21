@@ -178,3 +178,5 @@ with tab2:
         st.bar_chart(perf_df.groupby("Confidence (%)")["Result"].value_counts().unstack().fillna(0))
     else:
         st.info("No performance stats yet. Mark signals in tab 1 to begin tracking.")
+        if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
