@@ -1,5 +1,3 @@
-# Adding unique keys to buttons in the sidebar and footer to prevent StreamlitDuplicateElementId errors.
-
 import streamlit as st
 import requests
 import datetime
@@ -7,6 +5,7 @@ import pandas as pd
 import json
 import os
 
+# Constants
 INDEX_INFO = {
     "NIFTY": {"symbol": "NIFTY", "expiry_weekday": 3},
     "BANKNIFTY": {"symbol": "BANKNIFTY", "expiry_weekday": 3},
@@ -16,8 +15,10 @@ ZERO_PRICE_MAX = 5
 OTM_STRIKE_OFFSET = 200
 API_URL = "https://www.nseindia.com/api/option-chain-indices?symbol={}"
 
+# Page config
 st.set_page_config(page_title="Zero Hero Dashboard", layout="wide")
 
+# Fetch option chain data
 def get_option_chain(index):
     headers = {
         "User-Agent": "Mozilla/5.0",
@@ -35,6 +36,7 @@ def get_option_chain(index):
         return None
     return resp.json()
 
+# Calculate expiry date
 def get_expiry_date(index):
     today = datetime.date.today()
     weekday = today.weekday()
@@ -43,6 +45,7 @@ def get_expiry_date(index):
     expiry = today + datetime.timedelta(days=days_ahead)
     return expiry
 
+# Confidence score
 def signal_confidence(signal, records, underlying):
     strike = signal['Strike']
     ltp = signal['LTP']
@@ -61,6 +64,7 @@ def signal_confidence(signal, records, underlying):
     conf_pct = round(score * 100, 1)
     return conf_pct
 
+# Analyze signals
 def analyze_zero_hero(records, index):
     underlying = records['underlyingValue']
     data = records['data']
@@ -92,6 +96,7 @@ def analyze_zero_hero(records, index):
             pe_zero.append(pe_signal)
     return pd.DataFrame(ce_zero + pe_zero)
 
+# Save performance
 def save_performance(signal, result):
     stats_file = "zerohero_stats.json"
     if os.path.exists(stats_file):
@@ -106,6 +111,7 @@ def save_performance(signal, result):
     with open(stats_file, "w") as f:
         json.dump(stats, f)
 
+# Load performance
 def load_performance():
     stats_file = "zerohero_stats.json"
     if os.path.exists(stats_file):
@@ -114,8 +120,10 @@ def load_performance():
         return pd.DataFrame(stats)
     return pd.DataFrame([])
 
+# Tabs
 tab1, tab2 = st.tabs(["📈 Signals & Analysis", "📊 Performance Stats"])
 
+# Tab 1: Signal Analysis
 with tab1:
     st.title("Zero Hero Options Dashboard (NSE Indices)")
     index = st.selectbox("Select Index", list(INDEX_INFO.keys()))
@@ -165,6 +173,7 @@ with tab1:
             st.line_chart(df.set_index("Strike")[["CE OI", "PE OI"]])
     st.caption("Live free data: Powered by NSE option chain API. For analysis only. Click rerun/refresh for latest data.")
 
+# Tab 2: Performance Stats
 with tab2:
     st.title("Zero Hero Performance Stats")
     perf_df = load_performance()
@@ -180,6 +189,3 @@ with tab2:
         st.bar_chart(perf_df.groupby("Confidence (%)")["Result"].value_counts().unstack().fillna(0))
     else:
         st.info("No performance stats yet. Mark signals in tab 1 to begin tracking.")
-
-if __name__ == '__main__':
-    st.run()  # Note: Streamlit does not use app.run
