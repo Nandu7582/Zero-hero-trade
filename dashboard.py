@@ -1,3 +1,5 @@
+# Adding unique keys to buttons in the sidebar and footer to prevent StreamlitDuplicateElementId errors.
+
 import streamlit as st
 import requests
 import datetime
@@ -178,5 +180,6 @@ with tab2:
         st.bar_chart(perf_df.groupby("Confidence (%)")["Result"].value_counts().unstack().fillna(0))
     else:
         st.info("No performance stats yet. Mark signals in tab 1 to begin tracking.")
-        if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+
+if __name__ == '__main__':
+    st.run()  # Note: Streamlit does not use app.run
