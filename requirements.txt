@@ -4,3 +4,4 @@ pandas
 breeze_connect
 python_dotenv
 plotly
+numpy
