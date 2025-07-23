@@ -1,7 +1,7 @@
 streamlit
 requests
 pandas
-breeze_connect
+breeze-connect 1.0.63
 python_dotenv
 plotly
 numpy
